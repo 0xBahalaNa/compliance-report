@@ -1,4 +1,4 @@
-# compliance_report.py
+# Compliance Report
 
 A Python tool that combines multiple AWS audit checks into a unified, professional HTML compliance report.
 
