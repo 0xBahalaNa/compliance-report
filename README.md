@@ -126,7 +126,7 @@ This script supports FedRAMP 20x compliance-as-code by aggregating multi-control
 
 ## CJIS v6.0 Relevance
 
-CJIS v6.0 (audit standard from April 1, 2026) requires continuous monitoring and weekly audit-record review for systems handling Criminal Justice Information (CJI). The compliance report is the *review surface* for that workflow — a single document an authorizing official, system owner, or CJIS coordinator reviews to confirm controls are satisfied and findings are being remediated on schedule. Combined with `cloudtrail-audit` (AU-6 review tooling), `evidence-logger` (timestamped evidence), and S3 Object Lock archival (1-year retention), the report becomes the visible top of a fully audit-defensible CJIS continuous-monitoring stack.
+CJIS v6.0 (published Dec 27, 2024; default audit baseline from April 1, 2026; Priority 2-4 fully enforceable Oct 1, 2027) requires continuous monitoring and weekly audit-record review for systems handling Criminal Justice Information (CJI). The compliance report is the *review surface* for that workflow — a single document an authorizing official, system owner, or CJIS coordinator reviews to confirm controls are satisfied and findings are being remediated on schedule. Combined with `cloudtrail-audit` (AU-6 review tooling), `evidence-logger` (timestamped evidence), and S3 Object Lock archival (1-year retention), the report becomes the visible top of a fully audit-defensible CJIS continuous-monitoring stack.
 
 ## Roadmap
 
