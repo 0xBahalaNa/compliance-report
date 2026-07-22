@@ -1,0 +1,14 @@
+%% Editable Mermaid source for the README "Architecture Overview" section.
+%% Keep this file in sync with the inline ```mermaid fence in README.md.
+%% Diff-able source of truth for the architecture graph (no separate PNG export).
+graph TD
+    CLI["compliance_report.py"] --> STS["get_account_info<br/>STS GetCallerIdentity"]
+    CLI --> S3A["audit_s3_buckets<br/>S3 encryption + public access block"]
+    CLI --> IAMA["audit_iam_users<br/>IAM MFA for console users"]
+    CLI --> SGA["audit_security_groups<br/>EC2 SG open/risky ports"]
+    STS --> AGG["generate_report<br/>Aggregate PASS / FAIL / WARN"]
+    S3A --> AGG
+    IAMA --> AGG
+    SGA --> AGG
+    AGG --> JINJA["Jinja2 Template<br/>HTML_TEMPLATE"]
+    JINJA --> HTML["compliance_report_timestamp.html<br/>Browser review surface"]

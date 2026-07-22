@@ -28,6 +28,26 @@ Builds on previous audits (S3, IAM, Security Groups) and combines them into a si
 - **Jinja2** — HTML templating for professional reports
 - **Data aggregation** — Unified findings from multiple sources
 
+## Architecture Overview
+
+```mermaid
+graph TD
+    CLI["compliance_report.py"] --> STS["get_account_info<br/>STS GetCallerIdentity"]
+    CLI --> S3A["audit_s3_buckets<br/>S3 encryption + public access block"]
+    CLI --> IAMA["audit_iam_users<br/>IAM MFA for console users"]
+    CLI --> SGA["audit_security_groups<br/>EC2 SG open/risky ports"]
+    STS --> AGG["generate_report<br/>Aggregate PASS / FAIL / WARN"]
+    S3A --> AGG
+    IAMA --> AGG
+    SGA --> AGG
+    AGG --> JINJA["Jinja2 Template<br/>HTML_TEMPLATE"]
+    JINJA --> HTML["compliance_report_timestamp.html<br/>Browser review surface"]
+```
+
+Editable Mermaid source (kept in sync with the fence above): [`docs/architecture.mmd`](docs/architecture.mmd).
+
+`compliance_report.py` calls STS for account metadata, then runs three boto3 audit functions (S3, IAM, EC2 security groups). Each returns a list of finding dicts with a standardized `status` field. `generate_report` aggregates PASS/FAIL/WARN counts into an executive summary and renders the embedded Jinja2 `HTML_TEMPLATE` to a timestamped HTML file for assessor review.
+
 ## Requirements
 
 - Python 3.x
