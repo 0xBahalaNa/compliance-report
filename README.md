@@ -168,4 +168,4 @@ Control family mappings and AWS implementation details are documented in [nist-8
 
 ## License
 
-MIT
+MIT. Full text in [LICENSE](LICENSE).
