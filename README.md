@@ -7,26 +7,24 @@
 
 # Compliance Report
 
-A Python tool that aggregates findings from multiple AWS audit checks (S3, IAM, security groups) into a unified, professional HTML compliance report. Built for GRC engineers, compliance analysts, and assessors working in FedRAMP High and CJIS v6.0 environments where regular control assessments and continuous monitoring are binding obligations.
+One Python script that runs three boto3 audits (S3 encryption and public-access block, IAM MFA for console users, EC2 security-group inbound rules) and writes a timestamped HTML file with PASS / FAIL / WARN counts. I built this after writing the per-resource audits separately and getting tired of opening three terminals to answer one question: what is wrong in this account right now?
+
+It does not collect CloudTrail events, export PDF, or emit OSCAL. Those are listed under Future Enhancements. What ships is the HTML report.
 
 ## Compliance Controls Addressed
 
 | NIST 800-53 Rev 5 | FedRAMP High | CJIS v6.0 | Validation Method |
 |--------------------|:------------:|:---------:|-------------------|
-| CA-2 Control Assessments | Yes | — | The HTML report is the control-assessment artifact |
+| CA-2 Control Assessments | Yes | | The HTML report is the control-assessment artifact |
 | CA-7 Continuous Monitoring | Yes | Continuous monitoring expected | Regular generation supports ongoing control assessment |
-| AU-3 Content of Audit Records | Yes | — | Report includes timestamp, account, findings, severity, status |
-| AU-12 Audit Record Generation | Yes | — | Every report run produces a structured, dated artifact |
-| PM-31 Continuous Monitoring Strategy | Yes | — | Report integrates with the broader monitoring approach |
-| SI-4 System Monitoring | Yes | — | Aggregates monitoring findings into a single review surface |
+| AU-3 Content of Audit Records | Yes | | Report includes timestamp, account, findings, severity, status |
+| AU-12 Audit Record Generation | Yes | | Every report run produces a structured, dated artifact |
+| PM-31 Continuous Monitoring Strategy | Yes | | Report integrates with the broader monitoring approach |
+| SI-4 System Monitoring | Yes | | Aggregates monitoring findings into a single review surface |
 
 ## Overview
 
-Builds on previous audits (S3, IAM, Security Groups) and combines them into a single report generator using:
-
-- **Functions** — Refactored audit logic into reusable functions
-- **Jinja2** — HTML templating for professional reports
-- **Data aggregation** — Unified findings from multiple sources
+`compliance_report.py` pulls account identity from STS, then calls three audit functions. Each function returns a list of finding dicts with a shared `status` field. `generate_report` tallies PASS / FAIL / WARN and renders an embedded Jinja2 template to `compliance_report_<timestamp>.html`.
 
 ## Architecture Overview
 
@@ -45,8 +43,6 @@ graph TD
 ```
 
 Editable Mermaid source (kept in sync with the fence above): [`docs/architecture.mmd`](docs/architecture.mmd).
-
-`compliance_report.py` calls STS for account metadata, then runs three boto3 audit functions (S3, IAM, EC2 security groups). Each returns a list of finding dicts with a standardized `status` field. `generate_report` aggregates PASS/FAIL/WARN counts into an executive summary and renders the embedded Jinja2 `HTML_TEMPLATE` to a timestamped HTML file for assessor review.
 
 ## Requirements
 
@@ -138,19 +134,19 @@ Open the generated `.html` file in any web browser.
 
 ## How an Auditor Uses This Output
 
-An assessor reviewing a FedRAMP High or CJIS v6.0 authorization package can use the HTML report as a single, executive-readable view of multi-control assessment status. The Executive Summary maps directly to the assessor's high-level adequacy determination across S3, IAM, and SG controls; the per-section tables drill into the specific check results so the assessor can spot-check individual findings. Generated regularly (weekly / monthly), the report becomes the artifact that satisfies CA-7 (Continuous Monitoring) — proof that controls are not just designed but continuously verified. Distributed to system owners, it also serves as the working document for closing out CA-5 (Plan of Action and Milestones) items.
+Hand the HTML file to an assessor who wants one page instead of three CLI dumps. The summary counts are the go / no-go view; the S3, IAM, and security-group tables are where they spot-check a FAIL. Run it on a schedule and you have dated artifacts for CA-7. System owners can use the FAIL rows as the punch list for CA-5 items. It is not a POA&M tracker on its own.
 
 ## FedRAMP 20x Alignment
 
-This script supports FedRAMP 20x compliance-as-code by aggregating multi-control findings into a single artifact suitable for KSI metric extraction and continuous monitoring dashboards. A future enhancement will add OSCAL Assessment Results JSON output alongside the HTML so the same data feeds compliance-trestle and OSCAL-based pipelines without re-collection. The dated, never-overwriting filename pattern (`compliance_report_<timestamp>.html`) is the foundational unit for trend analysis under FedRAMP 20x continuous-monitoring expectations.
+The useful piece for 20x-style pipelines is the stable finding shape and the never-overwriting filename. HTML is what humans read today. OSCAL Assessment Results JSON is on the Future Enhancements list so the same run can feed trestle later without a second collection pass. That JSON path is not implemented yet.
 
 ## CJIS v6.0 Relevance
 
-CJIS v6.0 (published Dec 27, 2024; default audit baseline from April 1, 2026; Priority 2-4 fully enforceable Oct 1, 2027) requires continuous monitoring and weekly audit-record review for systems handling Criminal Justice Information (CJI). The compliance report is the *review surface* for that workflow — a single document an authorizing official, system owner, or CJIS coordinator reviews to confirm controls are satisfied and findings are being remediated on schedule. Combined with `cloudtrail-audit` (AU-6 review tooling), `evidence-logger` (timestamped evidence), and S3 Object Lock archival (1-year retention), the report becomes the visible top of a fully audit-defensible CJIS continuous-monitoring stack.
+CJIS v6.0 expects continuous monitoring and weekly audit-record review for systems with CJI. This report is the human-readable weekly artifact for the three resource checks it covers. Pair it with `cloudtrail-audit` for AU-6 event review and `evidence-logger` if you need a retention trail; those are separate repos. This one only writes the HTML file.
 
 ## Roadmap
 
-This tool aggregates findings produced by the per-resource audit tools (`s3-audit`, `sg-audit`, `iam-audit`). In **Month 7** those tools consolidate into the **Unified Evidence Collector** (Project 4); in **Month 8** this tool extends to consume the collector's output and emit OSCAL Assessment Results JSON alongside the HTML report, feeding [`oscal-evidence-pipeline`](https://github.com/0xBahalaNa/oscal-evidence-pipeline) for FedRAMP 20x continuous-monitoring pipelines. The HTML report remains the primary review surface for human reviewers; the OSCAL JSON becomes the machine-readable contract.
+Today this script calls boto3 itself. The per-resource tools (`s3-audit`, `sg-audit`, `iam-audit`) still exist as standalone CLIs. Planned next step is to stop re-implementing those checks here and instead consume a shared collector, then add OSCAL Assessment Results JSON next to the HTML for [`oscal-evidence-pipeline`](https://github.com/0xBahalaNa/oscal-evidence-pipeline). Until that lands, treat the HTML as the only shipped product.
 
 ## Future Enhancements
 
