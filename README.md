@@ -3,7 +3,7 @@
 ![AWS](https://img.shields.io/badge/AWS-S3%20%7C%20IAM%20%7C%20EC2-FF9900?style=flat&logo=amazonwebservices)
 ![NIST 800-53](https://img.shields.io/badge/NIST-800--53%20Rev%205-004990?style=flat)
 ![FedRAMP](https://img.shields.io/badge/FedRAMP-High%20Baseline-0071bc?style=flat)
-![CJIS](https://img.shields.io/badge/CJIS-Security%20Policy%20v6.0-cc0000?style=flat)
+![CJIS](https://img.shields.io/badge/CJIS-Security%20Policy%20v6.1-cc0000?style=flat)
 
 # Compliance Report
 
@@ -13,7 +13,7 @@ It does not collect CloudTrail events, export PDF, or emit OSCAL. Those are list
 
 ## Compliance Controls Addressed
 
-| NIST 800-53 Rev 5 | FedRAMP High | CJIS v6.0 | Validation Method |
+| NIST 800-53 Rev 5 | FedRAMP High | CJIS v6.1 | Validation Method |
 |--------------------|:------------:|:---------:|-------------------|
 | CA-2 Control Assessments | Yes | | The HTML report is the control-assessment artifact |
 | CA-7 Continuous Monitoring | Yes | Continuous monitoring expected | Regular generation supports ongoing control assessment |
@@ -140,9 +140,9 @@ Hand the HTML file to an assessor who wants one page instead of three CLI dumps.
 
 The useful piece for 20x-style pipelines is the stable finding shape and the never-overwriting filename. HTML is what humans read today. OSCAL Assessment Results JSON is on the Future Enhancements list so the same run can feed trestle later without a second collection pass. That JSON path is not implemented yet.
 
-## CJIS v6.0 Relevance
+## CJIS v6.1 Relevance
 
-CJIS v6.0 expects continuous monitoring and weekly audit-record review for systems with CJI. This report is the human-readable weekly artifact for the three resource checks it covers. Pair it with `cloudtrail-audit` for AU-6 event review and `evidence-logger` if you need a retention trail; those are separate repos. This one only writes the HTML file.
+CJIS v6.1 expects continuous monitoring and weekly audit-record review for systems with CJI. This report is the human-readable weekly artifact for the three resource checks it covers. Pair it with `cloudtrail-audit` for AU-6 event review and `evidence-logger` if you need a retention trail; those are separate repos. This one only writes the HTML file.
 
 ## Roadmap
 
